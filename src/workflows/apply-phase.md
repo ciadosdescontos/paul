@@ -337,6 +337,30 @@ After all tasks attempted:
 4. **Accept quick inputs:** "1", "yes", "continue", "go" → run `/paul:unify [plan-path]`
 </step>
 
+<step name="sync_paul_toml">
+**Sync project manifest and ledger:**
+
+Reference: @src/references/toml-sync.md
+
+**1. Sync paul.toml** (Pattern 1):
+   - Check for `.paul/paul.toml` first
+   - If not found: check for `.paul/paul.json` → auto-migrate per Pattern 3
+   - If neither found: skip silently
+   - Update fields:
+     - `loop.position` → "APPLY"
+     - `paul.version` → current PAUL framework version
+     - `stats.last_activity` → current ISO timestamp
+
+**2. Append to ledger.toml** (Pattern 2):
+   ```toml
+   [[entry]]
+   action = "apply"
+   phase = [current phase number]
+   plan = "[plan ID]"
+   at = "[ISO timestamp]"
+   ```
+</step>
+
 </process>
 
 <output>

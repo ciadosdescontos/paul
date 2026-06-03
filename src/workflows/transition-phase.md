@@ -151,6 +151,33 @@ Update ROADMAP.md:
    - Calculate percentage
 </step>
 
+<step name="sync_paul_toml">
+**Sync project manifest and ledger:**
+
+Reference: @src/references/toml-sync.md
+
+**1. Sync paul.toml** (Pattern 1):
+   - Check for `.paul/paul.toml` first
+   - If not found: check for `.paul/paul.json` → auto-migrate per Pattern 3
+   - If neither found: skip silently
+   - Update fields:
+     - `phase.number` → next phase number
+     - `phase.name` → next phase name
+     - `phase.status` → "not_started"
+     - `phase.plans_completed` → 0
+     - `stats.total_phases` → increment by 1
+     - `paul.version` → current PAUL framework version
+     - `stats.last_activity` → current ISO timestamp
+
+**2. Append to ledger.toml** (Pattern 2):
+   ```toml
+   [[entry]]
+   action = "transition"
+   phase = [completed phase number]
+   at = "[ISO timestamp]"
+   ```
+</step>
+
 <step name="commit_phase">
 **Git commit for completed phase:**
 

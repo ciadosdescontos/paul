@@ -24,7 +24,8 @@ After init, project is ready for first PLAN.
 
 <references>
 @src/templates/config.md
-@src/templates/paul-json.md
+@src/templates/paul-toml.md
+@src/references/toml-sync.md
 @src/references/sonarqube-integration.md
 </references>
 
@@ -428,44 +429,56 @@ Resume file: .paul/PROJECT.md
 ```
 </step>
 
-<step name="create_paul_json">
-**Create satellite manifest for external system discovery.**
+<step name="create_paul_toml">
+**Create project manifest and session ledger for BASE-v2 graph integration.**
 
-Reference: @src/templates/paul-json.md
+Reference: @src/templates/paul-toml.md, @src/references/toml-sync.md
 
-Generate a satellite ID: `sat_` + 8 random hex characters (from UUID4, e.g., `sat_3f8a1c2e`). This ID is permanent — it survives moves, renames, and folder restructures. BASE satellite detection uses it as the primary key.
+Auto-detect workspace-relative path: determine `path` from cwd relative to workspace root (e.g., if cwd is `/home/user/chris-ai-systems/apps/my-app` and workspace root is `/home/user/chris-ai-systems`, path = `"apps/my-app"`).
 
-Create `.paul/paul.json`:
-```json
-{
-  "id": "[generated sat_xxxxxxxx]",
-  "name": "[project_name]",
-  "version": "0.0.0",
-  "milestone": {
-    "name": "None",
-    "version": "0.0.0",
-    "status": "not_started"
-  },
-  "phase": {
-    "number": 0,
-    "name": "None",
-    "status": "not_started"
-  },
-  "loop": {
-    "plan": null,
-    "position": "IDLE"
-  },
-  "timestamps": {
-    "created_at": "[ISO timestamp]",
-    "updated_at": "[ISO timestamp]"
-  },
-  "satellite": {
-    "groom": true
-  }
-}
+Create `.paul/paul.toml`:
+```toml
+name = "[project_name]"
+version = "0.0.0"
+status = "active"
+path = "[workspace_relative_path]"
+tags = []
+
+[paul]
+version = "[current PAUL framework version]"
+source = "https://chrisai.cv/skool"
+
+[milestone]
+name = "None"
+version = "0.0.0"
+status = "not_started"
+phases = 0
+
+[phase]
+number = 0
+name = "None"
+status = "not_started"
+plans_completed = 0
+
+[loop]
+position = "IDLE"
+
+[satellite]
+groom = true
+
+[stats]
+total_plans = 0
+total_phases = 0
+last_activity = "[ISO timestamp]"
 ```
 
-**Note:** paul.json is infrastructure — no extra display or user prompts needed.
+Create `.paul/ledger.toml`:
+```toml
+# .paul/ledger.toml — Session history for cost/time attribution
+# Append-only. BASE extracts for usage analytics cross-reference.
+```
+
+**Note:** paul.toml and ledger.toml are infrastructure — no extra display or user prompts needed.
 </step>
 
 <step name="prompt_integrations">
@@ -662,7 +675,8 @@ Created:
   .paul/PROJECT.md    ✓  (requirements populated from walkthrough)
   .paul/ROADMAP.md    ✓
   .paul/STATE.md      ✓
-  .paul/paul.json     ✓
+  .paul/paul.toml     ✓  (project manifest for BASE-v2 graph integration)
+  .paul/ledger.toml   ✓  (session history for cost/time attribution)
   .paul/config.md     ✓  (if integrations_enabled: list enabled integrations)
   .paul/SPECIAL-FLOWS.md  ✓  (if specialized_flows_enabled: "[N] skills configured")
   .paul/phases/       ✓
@@ -693,7 +707,8 @@ If neither was enabled, show the minimal version without those lines.
 - `.paul/PROJECT.md` (populated from walkthrough or PLANNING.md import)
 - `.paul/ROADMAP.md` (skeleton for planning)
 - `.paul/STATE.md` (initialized state)
-- `.paul/paul.json` (satellite manifest for external system discovery)
+- `.paul/paul.toml` (project manifest for BASE-v2 graph integration)
+- `.paul/ledger.toml` (session history for cost/time attribution)
 - `.paul/config.md` (if integrations enabled)
 - `.paul/SPECIAL-FLOWS.md` (if specialized flows enabled)
 - `.paul/phases/` (empty directory)

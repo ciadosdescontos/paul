@@ -178,24 +178,33 @@ Include all standard sections:
    - Update resume file (point to SUMMARY)
 </step>
 
-<step name="sync_paul_json">
-**Sync satellite manifest (paul.json):**
+<step name="sync_paul_toml">
+**Sync project manifest and ledger:**
 
-1. Check if `.paul/paul.json` exists:
-   ```bash
-   ls .paul/paul.json 2>/dev/null
+Reference: @src/references/toml-sync.md
+
+**1. Sync paul.toml** (Pattern 1):
+   - Check for `.paul/paul.toml` first
+   - If not found: check for `.paul/paul.json` → auto-migrate per Pattern 3
+   - If neither found: skip silently
+   - Update fields:
+     - `phase.number` → current phase number from STATE.md
+     - `phase.name` → current phase name from STATE.md
+     - `phase.status` → "complete" if phase done, "in_progress" if more plans remain
+     - `phase.plans_completed` → increment by 1
+     - `loop.position` → "IDLE" (remove `plan` and `plan_path` keys entirely)
+     - `stats.total_plans` → increment by 1
+     - `paul.version` → current PAUL framework version
+     - `stats.last_activity` → current ISO timestamp
+
+**2. Append to ledger.toml** (Pattern 2):
+   ```toml
+   [[entry]]
+   action = "unify"
+   phase = [current phase number]
+   plan = "[current plan ID]"
+   at = "[ISO timestamp]"
    ```
-2. If not found: skip silently (pre-v1.1 project)
-3. If found: read current paul.json and update:
-   - **If `id` is missing:** generate one (`sat_` + 8 random hex chars from UUID4) and add it. This backfills legacy projects automatically as users work in them.
-   - `phase.number` → current phase number from STATE.md
-   - `phase.name` → current phase name from STATE.md
-   - `phase.status` → "complete" if phase done, "in_progress" if more plans remain
-   - `loop.plan` → null (loop just closed)
-   - `loop.position` → "IDLE"
-   - `timestamps.updated_at` → current ISO timestamp
-   - **If `id` already exists: PRESERVE it — never modify or remove. It is the satellite's stable identity.**
-4. Write updated paul.json back
 </step>
 
 <step name="check_phase_completion">

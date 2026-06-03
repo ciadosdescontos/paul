@@ -382,20 +382,27 @@ Git tag created: {version}
 **Note:** Do not push automatically — user controls when to push.
 </step>
 
-<step name="sync_paul_json">
-**Sync satellite manifest (paul.json):**
+<step name="sync_paul_toml">
+**Sync project manifest and ledger:**
 
-1. Check if `.paul/paul.json` exists:
-   ```bash
-   ls .paul/paul.json 2>/dev/null
+Reference: @src/references/toml-sync.md
+
+**1. Sync paul.toml** (Pattern 1):
+   - Check for `.paul/paul.toml` first
+   - If not found: check for `.paul/paul.json` → auto-migrate per Pattern 3
+   - If neither found: skip silently
+   - Update fields:
+     - `milestone.status` → "complete"
+     - `paul.version` → current PAUL framework version
+     - `stats.last_activity` → current ISO timestamp
+
+**2. Append to ledger.toml** (Pattern 2):
+   ```toml
+   [[entry]]
+   action = "milestone_complete"
+   phase = [last phase number]
+   at = "[ISO timestamp]"
    ```
-2. If not found: skip silently (pre-v1.1 project)
-3. If found: read current paul.json and update:
-   - **If `id` is missing:** generate one (`sat_` + 8 random hex chars from UUID4) and add it. This backfills legacy projects automatically as users work in them.
-   - `milestone.status` → "complete"
-   - `timestamps.updated_at` → current ISO timestamp
-   - **If `id` already exists: PRESERVE it — never modify or remove. It is the satellite's stable identity.**
-4. Write updated paul.json back
 </step>
 
 <step name="offer_next">

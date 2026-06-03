@@ -166,28 +166,36 @@ Update STATE.md:
    ```
 </step>
 
-<step name="sync_paul_json">
-**Sync satellite manifest (paul.json):**
+<step name="sync_paul_toml">
+**Sync project manifest and ledger:**
 
-1. Check if `.paul/paul.json` exists:
-   ```bash
-   ls .paul/paul.json 2>/dev/null
+Reference: @src/references/toml-sync.md
+
+**1. Sync paul.toml** (Pattern 1):
+   - Check for `.paul/paul.toml` first
+   - If not found: check for `.paul/paul.json` → auto-migrate per Pattern 3
+   - If neither found: skip silently
+   - Update fields:
+     - `milestone.name` → new milestone name
+     - `milestone.version` → new milestone version
+     - `milestone.status` → "in_progress"
+     - `milestone.phases` → total phases in new milestone
+     - `version` → new milestone version string
+     - `phase.number` → first phase number
+     - `phase.name` → first phase name
+     - `phase.status` → "not_started"
+     - `phase.plans_completed` → 0
+     - `loop.position` → "IDLE" (remove `plan` and `plan_path` keys entirely)
+     - `paul.version` → current PAUL framework version
+     - `stats.last_activity` → current ISO timestamp
+
+**2. Append to ledger.toml** (Pattern 2):
+   ```toml
+   [[entry]]
+   action = "milestone_create"
+   phase = [first phase number]
+   at = "[ISO timestamp]"
    ```
-2. If not found: skip silently (pre-v1.1 project)
-3. If found: read current paul.json and update:
-   - `milestone.name` → new milestone name
-   - `milestone.version` → new milestone version
-   - `milestone.status` → "in_progress"
-   - `version` → new milestone version string
-   - `phase.number` → first phase number
-   - `phase.name` → first phase name
-   - `phase.status` → "not_started"
-   - `loop.plan` → null
-   - `loop.position` → "IDLE"
-   - **If `id` is missing:** generate one (`sat_` + 8 random hex chars from UUID4) and add it. This backfills legacy projects automatically as users work in them.
-   - `timestamps.updated_at` → current ISO timestamp
-   - **If `id` already exists: PRESERVE it — never modify or remove. It is the satellite's stable identity.**
-4. Write updated paul.json back
 </step>
 
 <step name="cleanup_context">

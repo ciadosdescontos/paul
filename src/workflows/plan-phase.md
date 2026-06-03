@@ -368,6 +368,32 @@ This flag determines whether the post-plan routing suggests audit before APPLY.
    Accept quick inputs: "1", "approved", "yes", "go" → run `/paul:apply [plan-path]`
 </step>
 
+<step name="sync_paul_toml">
+**Sync project manifest and ledger:**
+
+Reference: @src/references/toml-sync.md
+
+**1. Sync paul.toml** (Pattern 1):
+   - Check for `.paul/paul.toml` first
+   - If not found: check for `.paul/paul.json` → auto-migrate per Pattern 3
+   - If neither found: skip silently
+   - Update fields:
+     - `loop.position` → "PLAN"
+     - `loop.plan` → plan ID (e.g., "02-04")
+     - `loop.plan_path` → relative path to PLAN.md (e.g., "phases/02-api-layer/02-04-PLAN.md")
+     - `paul.version` → current PAUL framework version
+     - `stats.last_activity` → current ISO timestamp
+
+**2. Append to ledger.toml** (Pattern 2):
+   ```toml
+   [[entry]]
+   action = "plan"
+   phase = [current phase number]
+   plan = "[plan ID]"
+   at = "[ISO timestamp]"
+   ```
+</step>
+
 </process>
 
 <output>
